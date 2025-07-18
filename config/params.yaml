@@ -1,0 +1,248 @@
+# NXP B3RB Warehouse Challenge Parameters
+# This file contains configuration parameters for all nodes in the warehouse challenge
+
+# Global Parameters
+global:
+  frame_id: "map"
+  robot_frame_id: "base_link"
+  max_shelf_count: 10
+  challenge_timeout: 1800.0  # 30 minutes in seconds
+  
+# Navigation Controller Parameters
+navigation_controller:
+  ros__parameters:
+    # Nav2 Action Client Settings
+    action_server_timeout: 10.0
+    goal_timeout: 60.0
+    
+    # Navigation Tolerances
+    xy_goal_tolerance: 0.2  # meters
+    yaw_goal_tolerance: 0.1  # radians
+    
+    # Recovery Behaviors
+    enable_recovery: true
+    max_recovery_attempts: 3
+    recovery_backup_distance: 0.5  # meters
+    recovery_rotation_angle: 1.57  # 90 degrees in radians
+    
+    # Exploration Parameters
+    frontier_detection_enabled: true
+    min_frontier_size: 10  # minimum number of cells
+    exploration_radius: 2.0  # meters
+    safety_distance: 0.3  # meters from obstacles
+    
+    # Goal Planning
+    approach_distance: 1.0  # distance to approach shelf
+    qr_scan_distance: 0.5  # distance for QR code scanning
+    object_view_distance: 1.5  # distance for object recognition
+    
+    # Timeouts
+    navigation_timeout: 30.0  # seconds
+    exploration_timeout: 120.0  # seconds
+    
+    # Speed Limits
+    max_linear_velocity: 0.5  # m/s
+    max_angular_velocity: 1.0  # rad/s
+
+# Warehouse Controller (State Machine) Parameters
+warehouse_controller:
+  ros__parameters:
+    # State Machine Configuration
+    initial_state: "INITIALIZE"
+    state_timeout: 60.0  # seconds
+    
+    # Shelf Management
+    shelf_approach_angle_tolerance: 0.2  # radians
+    shelf_detection_confidence: 0.8
+    
+    # QR Code Processing
+    qr_decode_timeout: 10.0  # seconds
+    qr_validation_enabled: true
+    
+    # Object Recognition
+    object_recognition_timeout: 15.0  # seconds
+    min_object_confidence: 0.5
+    object_count_verification: true
+    
+    # Heuristic Navigation
+    use_heuristic_navigation: true
+    heuristic_angle_tolerance: 10.0  # degrees
+    
+    # Progress Tracking
+    progress_table_update_rate: 2.0  # Hz
+    
+    # Error Handling
+    max_consecutive_failures: 5
+    failure_recovery_enabled: true
+    
+    # Scoring Parameters
+    points_correct_object: 0.5
+    points_wrong_object: -1.0
+    points_complete_shelf: 1.0
+    points_correct_qr: 1.0
+    points_collision: -1.0
+
+# QR Code Decoder Parameters
+qr_code_decoder:
+  ros__parameters:
+    # Image Processing
+    image_processing_rate: 10.0  # Hz
+    blur_kernel_size: 5
+    gaussian_blur_sigma: 1.0
+    
+    # QR Detection
+    qr_detection_timeout: 5.0  # seconds
+    min_qr_size: 50  # pixels
+    max_qr_size: 500  # pixels
+    
+    # QR Validation
+    qr_string_length: 30
+    shelf_id_position: 0
+    angle_position: 2
+    angle_length: 5
+    secret_position: 7
+    secret_length: 23
+    
+    # Image Enhancement
+    enhance_contrast: true
+    adaptive_threshold: true
+    morphological_operations: true
+    
+    # Debug Settings
+    publish_debug_images: true
+    save_debug_images: false
+    debug_image_path: "/tmp/qr_debug/"
+
+# Object Recognition Parameters
+object_recognition_processor:
+  ros__parameters:
+    # YOLO Model Configuration
+    model_path: "resource/models/yolov5n-int8.tflite"
+    confidence_threshold: 0.5
+    iou_threshold: 0.45
+    
+    # Object Classes (COCO subset relevant to warehouse)
+    target_classes: [
+      "person", "bicycle", "car", "motorcycle", "airplane", "bus", "train",
+      "truck", "boat", "traffic light", "fire hydrant", "stop sign",
+      "parking meter", "bench", "bird", "cat", "dog", "horse", "sheep",
+      "cow", "elephant", "bear", "zebra", "giraffe", "backpack", "umbrella",
+      "handbag", "tie", "suitcase", "frisbee", "skis", "snowboard",
+      "sports ball", "kite", "baseball bat", "baseball glove", "skateboard",
+      "surfboard", "tennis racket", "bottle", "wine glass", "cup", "fork",
+      "knife", "spoon", "bowl", "banana", "apple", "sandwich", "orange",
+      "broccoli", "carrot", "hot dog", "pizza", "donut", "cake", "chair",
+      "couch", "potted plant", "bed", "dining table", "toilet", "tv",
+      "laptop", "mouse", "remote", "keyboard", "cell phone", "microwave",
+      "oven", "toaster", "sink", "refrigerator", "book", "clock", "vase",
+      "scissors", "teddy bear", "hair drier", "toothbrush"
+    ]
+    
+    # Processing Parameters
+    processing_rate: 5.0  # Hz
+    batch_processing: false
+    max_objects_per_shelf: 6
+    
+    # Filtering
+    min_object_area: 100  # pixels
+    max_object_area: 50000  # pixels
+    duplicate_suppression: true
+    duplicate_iou_threshold: 0.7
+    
+    # Confidence Adjustment
+    confidence_boost_factor: 1.1
+    confidence_decay_rate: 0.95
+
+# Shelf Detection Parameters
+shelf_detector:
+  ros__parameters:
+    # Map Processing
+    map_processing_rate: 2.0  # Hz
+    occupancy_threshold: 65  # 0-100 scale
+    free_space_threshold: 25
+    
+    # Shelf Detection Algorithm
+    detection_method: "contour_based"  # "contour_based" or "template_matching"
+    min_shelf_area: 500  # pixels
+    max_shelf_area: 5000  # pixels
+    
+    # Contour Detection
+    contour_approximation_epsilon: 0.02
+    min_contour_points: 4
+    aspect_ratio_tolerance: 0.3
+    
+    # Template Matching (if used)
+    template_matching_threshold: 0.8
+    template_scale_range: [0.8, 1.2]
+    
+    # Shelf Validation
+    shelf_width_range: [1.0, 3.0]  # meters
+    shelf_height_range: [0.5, 2.0]  # meters
+    
+    # Clustering
+    clustering_distance: 2.0  # meters
+    min_cluster_size: 1
+    
+    # Coordinate Conversion
+    map_resolution: 0.05  # meters/pixel (will be updated from map data)
+    
+    # Debug
+    publish_debug_markers: true
+    debug_marker_lifetime: 30.0  # seconds
+
+# Map Visualizer Parameters (Debug)
+map_visualizer:
+  ros__parameters:
+    visualization_rate: 1.0  # Hz
+    window_size: [800, 600]
+    auto_scale: true
+    show_robot_pose: true
+    show_detected_shelves: true
+    show_frontiers: true
+    colormap: "viridis"
+    
+    # Plot Settings
+    grid_alpha: 0.3
+    obstacle_color: "black"
+    free_space_color: "white"
+    unknown_space_color: "gray"
+    robot_color: "red"
+    shelf_color: "blue"
+    frontier_color: "green"
+
+# Debug Visualizer Parameters
+debug_visualizer:
+  ros__parameters:
+    # Image Publishing
+    publish_rate: 5.0  # Hz
+    image_quality: 80  # JPEG quality 0-100
+    
+    # Annotation Settings 
+    font_scale: 0.7
+    font_thickness: 2
+    bbox_thickness: 2
+    text_color: [0, 255, 0]  # Green
+    bbox_color: [255, 0, 0]  # Red
+    
+    # QR Code Debug
+    qr_detection_color: [0, 255, 255]  # Cyan
+    qr_text_offset: [10, 30]
+    
+    # Object Recognition Debug
+    confidence_display: true
+    class_name_display: true
+    
+    # Shelf Detection Debug
+    shelf_contour_color: [255, 255, 0]  # Yellow
+    shelf_center_color: [255, 0, 255]  # Magenta
+    shelf_id_display: true
+
+# Logging Configuration
+logging:
+  ros__parameters:
+    log_level: "INFO"  # DEBUG, INFO, WARN, ERROR
+    log_to_file: false
+    log_file_path: "/tmp/warehouse_challenge.log"
+    log_rotation: true
+    max_log_size: 10485760  # 10MB
+    backup_count: 5
